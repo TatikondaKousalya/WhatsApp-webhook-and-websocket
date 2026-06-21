@@ -25,6 +25,6 @@ public class Notification extends BaseEntity {
     @Column(name = "notification_type", nullable = false)
     private NotificationType notificationType;
 
-    @Column(nullable = false)
-    private Boolean read = false;
+    @Column(name = "is_read", nullable = false)
+    private boolean read;
 }

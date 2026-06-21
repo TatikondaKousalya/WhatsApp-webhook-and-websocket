@@ -1,6 +1,7 @@
 package com.chatapp.controller;
 
 import com.chatapp.data.entity.Attachment;
+import com.chatapp.dto.response.ApiResponse;
 import com.chatapp.service.AttachmentService;
 import lombok.RequiredArgsConstructor;
 
@@ -19,30 +20,31 @@ public class AttachmentController {
     private final AttachmentService attachmentService;
 
     @PostMapping("/upload")
-    public Attachment upload(@RequestParam Long userId, @RequestParam MultipartFile file){
-        return attachmentService.uploadFile(userId,file);
-
+    public ResponseEntity<ApiResponse<Attachment>> upload(@RequestParam Long userId, @RequestParam MultipartFile file) {
+        Attachment attachment = attachmentService.uploadFile(userId, file);
+        return ResponseEntity.ok(ApiResponse.<Attachment>builder().success(true)
+                .message("File uploaded successfully.").data(attachment).build());
     }
 
     @GetMapping("/{id}")
-    public Attachment get(@PathVariable Long id){
-        return attachmentService.getAttachment(id);
+    public ResponseEntity<ApiResponse<Attachment>> get(@PathVariable Long id) {
+        Attachment attachment = attachmentService.getAttachment(id);
+        return ResponseEntity.ok(ApiResponse.<Attachment>builder().success(true)
+                .message("File details fetched successfully.").data(attachment).build());
     }
 
     @GetMapping("/download/{id}")
-    public ResponseEntity<Resource> download(@PathVariable Long id) throws Exception{
-
+    public ResponseEntity<Resource> download(@PathVariable Long id) throws Exception {
         Path path = attachmentService.getFile(id);
         Resource resource = new UrlResource(path.toUri());
-
         return ResponseEntity.ok(resource);
-
     }
 
     @DeleteMapping("/{id}")
-    public String delete(@PathVariable Long id){
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         attachmentService.deleteAttachment(id);
-        return "File Deleted";
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .success(true).message("File deleted successfully.").build());
     }
 
 }

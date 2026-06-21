@@ -23,6 +23,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -41,6 +42,7 @@ public class AuthService {
     private Long jwtExpiration;
 
     // Register User
+    @Transactional
     public AuthResponse register(RegisterRequest request) {
 
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -107,6 +109,7 @@ public class AuthService {
     }
 
     // Login User
+    @Transactional
     public AuthResponse login(LoginRequest request) {
 
         try {
@@ -131,6 +134,7 @@ public class AuthService {
     }
 
     // Generate new access token using refresh token
+    @Transactional
     public AuthResponse refreshToken(RefreshTokenRequest request) {
 
         RefreshToken refreshToken = refreshTokenService.verifyRefreshToken(request.getRefreshToken());

@@ -2,8 +2,11 @@ package com.chatapp.controller;
 
 import com.chatapp.data.entity.GroupChat;
 import com.chatapp.data.entity.GroupMember;
+import com.chatapp.dto.response.ApiResponse;
 import com.chatapp.service.GroupService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,41 +19,55 @@ public class GroupController {
     private final GroupService groupService;
 
     @PostMapping
-    public GroupChat create(@RequestBody GroupChat group){
-        return groupService.createGroup(group);
+    public ResponseEntity<ApiResponse<GroupChat>> create(@RequestBody GroupChat group) {
+        GroupChat createdGroup = groupService.createGroup(group);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.<GroupChat>builder()
+                .success(true).message("Group created successfully.")
+                .data(createdGroup).build());
     }
 
     @PostMapping("/{groupId}/members/{userId}")
-    public String add(@PathVariable Long groupId, @PathVariable Long userId){
-        groupService.addMember(groupId,userId);
-        return "Member Added";
+    public ResponseEntity<ApiResponse<Void>> add(@PathVariable Long groupId, @PathVariable Long userId) {
+        groupService.addMember(groupId, userId);
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .success(true).message("Member added successfully.").build());
     }
 
     @DeleteMapping("/{groupId}/members/{userId}")
-    public String remove(@PathVariable Long groupId, @PathVariable Long userId){
-        groupService.removeMember(groupId,userId);
-        return "Member Removed";
+    public ResponseEntity<ApiResponse<Void>> remove(@PathVariable Long groupId, @PathVariable Long userId) {
+        groupService.removeMember(groupId, userId);
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .success(true).message("Member removed successfully.").build());
     }
 
     @GetMapping("/{id}")
-    public GroupChat get(@PathVariable Long id){
-        return groupService.getGroup(id);
+    public ResponseEntity<ApiResponse<GroupChat>> get(@PathVariable Long id) {
+        GroupChat group = groupService.getGroup(id);
+        return ResponseEntity.ok(ApiResponse.<GroupChat>builder()
+                .success(true).message("Group fetched successfully.")
+                .data(group).build());
     }
 
     @GetMapping("/{id}/members")
-    public List<GroupMember> members(@PathVariable Long id){
-        return groupService.getMembers(id);
+    public ResponseEntity<ApiResponse<List<GroupMember>>> members(@PathVariable Long id) {
+        List<GroupMember> members = groupService.getMembers(id);
+        return ResponseEntity.ok(ApiResponse.<List<GroupMember>>builder()
+                .success(true).message("Group members fetched successfully.")
+                .data(members).build());
     }
 
     @PutMapping
-    public GroupChat update(@RequestBody GroupChat group){
-        return groupService.updateGroup(group);
+    public ResponseEntity<ApiResponse<GroupChat>> update(@RequestBody GroupChat group) {
+        GroupChat updatedGroup = groupService.updateGroup(group);
+        return ResponseEntity.ok(ApiResponse.<GroupChat>builder()
+                .success(true).message("Group updated successfully.")
+                .data(updatedGroup).build());
     }
 
     @DeleteMapping("/{id}")
-    public String delete(@PathVariable Long id){
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         groupService.deleteGroup(id);
-        return "Group Deleted";
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .success(true).message("Group deleted successfully.").build());
     }
-
 }
