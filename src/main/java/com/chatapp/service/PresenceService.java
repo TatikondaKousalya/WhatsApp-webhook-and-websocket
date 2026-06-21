@@ -21,8 +21,7 @@ public class PresenceService {
     public void markOnline(Long userId, String sessionId) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found."));
 
         UserPresence presence = userPresenceRepository.findByUserId(userId)
                 .orElse(new UserPresence());
@@ -38,8 +37,7 @@ public class PresenceService {
     public void markOffline(Long userId) {
 
         UserPresence presence = userPresenceRepository.findByUserId(userId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Presence not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Presence not found."));
 
         presence.setStatus(UserStatus.OFFLINE);
         presence.setLastSeen(LocalDateTime.now());
@@ -51,8 +49,7 @@ public class PresenceService {
     public void markAway(Long userId) {
 
         UserPresence presence = userPresenceRepository.findByUserId(userId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Presence not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Presence not found."));
 
         presence.setStatus(UserStatus.AWAY);
 
@@ -62,8 +59,7 @@ public class PresenceService {
     public void markBusy(Long userId) {
 
         UserPresence presence = userPresenceRepository.findByUserId(userId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Presence not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Presence not found."));
 
         presence.setStatus(UserStatus.BUSY);
 
@@ -73,7 +69,6 @@ public class PresenceService {
     public UserPresence getPresence(Long userId) {
 
         return userPresenceRepository.findByUserId(userId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Presence not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Presence not found."));
     }
 }

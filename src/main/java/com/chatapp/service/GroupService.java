@@ -22,9 +22,7 @@ public class GroupService {
     private final GroupMemberRepository groupMemberRepository;
     private final UserRepository userRepository;
 
-    /**
-     * Create Group
-     */
+    // Create Group
     public GroupChat createGroup(GroupChat group) {
 
         User creator = userRepository.findById(group.getCreatedBy().getId())
@@ -46,9 +44,7 @@ public class GroupService {
         return savedGroup;
     }
 
-    /**
-     * Add Member
-     */
+    // Add Member
     public void addMember(Long groupId, Long userId) {
 
         GroupChat group = groupChatRepository.findById(groupId)
@@ -72,9 +68,7 @@ public class GroupService {
         groupMemberRepository.save(member);
     }
 
-    /**
-     * Remove Member
-     */
+    // Remove Member
     public void removeMember(Long groupId, Long userId) {
 
         GroupMember member = groupMemberRepository
@@ -85,9 +79,7 @@ public class GroupService {
         groupMemberRepository.delete(member);
     }
 
-    /**
-     * Get Group
-     */
+    // Get Group
     public GroupChat getGroup(Long groupId) {
 
         return groupChatRepository.findById(groupId)
@@ -95,17 +87,13 @@ public class GroupService {
                         new ResourceNotFoundException("Group not found."));
     }
 
-    /**
-     * Get Members
-     */
+    // Get Members
     public List<GroupMember> getMembers(Long groupId) {
 
         return groupMemberRepository.findByGroupId(groupId);
     }
 
-    /**
-     * Update Group
-     */
+    // Update Group
     public GroupChat updateGroup(GroupChat request) {
 
         GroupChat group = getGroup(request.getId());
@@ -117,9 +105,7 @@ public class GroupService {
         return groupChatRepository.save(group);
     }
 
-    /**
-     * Delete Group
-     */
+    // Delete Group
     public void deleteGroup(Long groupId) {
 
         GroupChat group = getGroup(groupId);
@@ -127,9 +113,7 @@ public class GroupService {
         groupChatRepository.delete(group);
     }
 
-    /**
-     * Leave Group
-     */
+    // Leave Group
     public void leaveGroup(Long groupId, Long userId) {
 
         removeMember(groupId, userId);

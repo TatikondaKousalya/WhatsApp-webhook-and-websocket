@@ -40,9 +40,7 @@ public class AuthService {
     @Value("${application.security.jwt.expiration}")
     private Long jwtExpiration;
 
-    /**
-     * Register User
-     */
+    // Register User
     public AuthResponse register(RegisterRequest request) {
 
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -108,9 +106,7 @@ public class AuthService {
                 .build();
     }
 
-    /**
-     * Login User
-     */
+    // Login User
     public AuthResponse login(LoginRequest request) {
 
         try {
@@ -133,9 +129,8 @@ public class AuthService {
                 .refreshToken(refreshToken.getToken()).tokenType("Bearer")
                 .expiresIn(jwtExpiration).user(mapUser(user)).build();
     }
-    /**
-     * Generate new access token using refresh token
-     */
+
+    // Generate new access token using refresh token
     public AuthResponse refreshToken(RefreshTokenRequest request) {
 
         RefreshToken refreshToken = refreshTokenService.verifyRefreshToken(request.getRefreshToken());
@@ -147,9 +142,7 @@ public class AuthService {
                 .expiresIn(jwtExpiration).user(mapUser(user)).build();
     }
 
-    /**
-     * Logout User
-     */
+    //Logout User
     public void logout(String refreshToken) {
 
         if (refreshToken == null || refreshToken.isBlank()) {
@@ -165,9 +158,7 @@ public class AuthService {
         SecurityContextHolder.clearContext();
     }
 
-    /**
-     * Change Password
-     */
+    //Change Password
     public void changePassword(ChangePasswordRequest request) {
 
         User user = getCurrentUserEntity();
@@ -187,16 +178,12 @@ public class AuthService {
         userRepository.save(user);
     }
 
-    /**
-     * Get Logged-in User
-     */
+    // Get Logged-in User
     public UserResponse getCurrentUser() {
         return mapUser(getCurrentUserEntity());
     }
 
-    /**
-     * Returns logged-in User entity
-     */
+    // Returns logged-in User entity
     private User getCurrentUserEntity() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email).orElseThrow(() ->

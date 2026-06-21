@@ -26,9 +26,8 @@ public class AttachmentService {
     @Value("${application.file.upload-dir}")
     private String uploadDir;
 
-    /**
-     * Upload Attachment
-     */
+
+    // Upload Attachment
     public Attachment uploadFile(Long userId, MultipartFile file) {
 
         if (file == null || file.isEmpty()) {
@@ -36,8 +35,7 @@ public class AttachmentService {
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found."));
 
         try {
 
@@ -54,8 +52,7 @@ public class AttachmentService {
 
             Path destination = uploadPath.resolve(fileName);
 
-            Files.copy(file.getInputStream(),
-                    destination,
+            Files.copy(file.getInputStream(), destination,
                     StandardCopyOption.REPLACE_EXISTING);
 
             Attachment attachment = new Attachment();
@@ -73,29 +70,24 @@ public class AttachmentService {
         }
     }
 
-    /**
-     * Get Attachment
-     */
+
+    // Get Attachment
     public Attachment getAttachment(Long attachmentId) {
 
         return attachmentRepository.findById(attachmentId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Attachment not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Attachment not found."));
     }
 
-    /**
-     * Download File
-     */
+
+    // Download File
     public Path getFile(Long attachmentId) {
 
         Attachment attachment = getAttachment(attachmentId);
-
         return Paths.get(attachment.getFilePath());
     }
 
-    /**
-     * Delete Attachment
-     */
+
+    // Delete Attachment
     public void deleteAttachment(Long attachmentId) {
 
         Attachment attachment = getAttachment(attachmentId);

@@ -23,22 +23,15 @@ public class MessageService {
     private final GroupChatRepository groupChatRepository;
     private final AttachmentRepository attachmentRepository;
 
-    /**
-     * Send private message
-     */
-    public Message sendPrivateMessage(
-            Long senderId,
-            Long receiverId,
-            String text,
-            Long attachmentId) {
+    //Send private message
+    public Message sendPrivateMessage(Long senderId, Long receiverId,
+                                      String text, Long attachmentId) {
 
         User sender = userRepository.findById(senderId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Sender not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Sender not found."));
 
         User receiver = userRepository.findById(receiverId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Receiver not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Receiver not found."));
 
         ChatRoom room = chatRoomRepository
                 .findByUser1AndUser2AndRoomType(sender, receiver, RoomType.PRIVATE)
@@ -55,11 +48,9 @@ public class MessageService {
         if (attachmentId != null) {
 
             Attachment attachment = attachmentRepository.findById(attachmentId)
-                    .orElseThrow(() ->
-                            new ResourceNotFoundException("Attachment not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Attachment not found."));
 
             message.setAttachment(attachment.getFilePath());
-
             String fileType = attachment.getFileType();
 
             if (fileType.startsWith("image/")) {
@@ -73,11 +64,8 @@ public class MessageService {
             }
 
         } else {
-
             message.setMessageType(MessageType.TEXT);
-
         }
-
         return messageRepository.save(message);
     }
 
@@ -94,22 +82,16 @@ public class MessageService {
         return chatRoomRepository.save(room);
     }
 
-    /**
-     * Send group message
-     */
-    public Message sendGroupMessage(
-            Long senderId,
-            Long groupId,
-            String text,
-            Long attachmentId) {
+
+    // Send group message
+    public Message sendGroupMessage(Long senderId, Long groupId,
+                                    String text, Long attachmentId) {
 
         User sender = userRepository.findById(senderId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found."));
 
         GroupChat group = groupChatRepository.findById(groupId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Group not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Group not found."));
 
         Message message = new Message();
 
@@ -121,11 +103,9 @@ public class MessageService {
         if (attachmentId != null) {
 
             Attachment attachment = attachmentRepository.findById(attachmentId)
-                    .orElseThrow(() ->
-                            new ResourceNotFoundException("Attachment not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Attachment not found."));
 
             message.setAttachment(attachment.getFilePath());
-
             String fileType = attachment.getFileType();
 
             if (fileType.startsWith("image/")) {
@@ -139,69 +119,48 @@ public class MessageService {
             }
 
         } else {
-
             message.setMessageType(MessageType.TEXT);
-
         }
 
         return messageRepository.save(message);
     }
 
-    /**
-     * Get private chat history
-     */
+    // Get private chat history
     public List<Message> getPrivateMessages(Long roomId) {
-
         return messageRepository.findByChatRoomIdOrderByCreatedAtAsc(roomId);
     }
 
-    /**
-     * Get group messages
-     */
+    // Get group messages
     public List<Message> getGroupMessages(Long groupId) {
-
         return messageRepository.findByGroupIdOrderByCreatedAtAsc(groupId);
     }
 
-    /**
-     * Mark delivered
-     */
+    // Mark delivered
     public void markDelivered(Long messageId) {
 
         Message message = getMessage(messageId);
-
         message.setMessageStatus(MessageStatus.DELIVERED);
-
         messageRepository.save(message);
     }
 
-    /**
-     * Mark read
-     */
+    // Mark read
     public void markRead(Long messageId) {
 
         Message message = getMessage(messageId);
-
         message.setMessageStatus(MessageStatus.READ);
-
         messageRepository.save(message);
     }
 
-    /**
-     * Delete message
-     */
+    // Delete message
     public void deleteMessage(Long messageId) {
 
         messageRepository.delete(getMessage(messageId));
     }
 
-    /**
-     * Get single message
-     */
+    // Get single message
     public Message getMessage(Long messageId) {
 
         return messageRepository.findById(messageId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Message not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Message not found."));
     }
 }

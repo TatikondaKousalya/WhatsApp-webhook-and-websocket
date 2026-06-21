@@ -17,44 +17,31 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    /**
-     * Get User By Id
-     */
+
+    // Get User By Id
     public User getUser(Long userId) {
 
         return userRepository.findById(userId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found."));
     }
 
-    /**
-     * Get Current User
-     */
+    //Get Current User
     public User getCurrentUser() {
 
-        String email = SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getName();
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         return userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found."));
     }
 
-    /**
-     * Get All Users
-     */
+    //Get All Users
     public List<User> getAllUsers() {
 
-        return userRepository.findAll()
-                .stream()
-                .filter(user -> !Boolean.TRUE.equals(user.getDeleted()))
-                .toList();
+        return userRepository.findAll().stream()
+                .filter(user -> !Boolean.TRUE.equals(user.getDeleted())).toList();
     }
 
-    /**
-     * Update Profile
-     */
+    //Update Profile
     public User updateProfile(UpdateUserRequest request) {
 
         User user = getCurrentUser();
@@ -84,37 +71,25 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    /**
-     * Update Profile Picture
-     */
+    //Update Profile Picture
     public User updateProfilePicture(String imagePath) {
 
         User user = getCurrentUser();
-
         user.setProfilePicture(imagePath);
-
         return userRepository.save(user);
     }
 
-    /**
-     * Search Users
-     */
+    //Search Users
     public List<User> searchUsers(String keyword) {
 
-        return userRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrUsernameContainingIgnoreCase(
-                keyword,
-                keyword,
-                keyword
+        return userRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrUsernameContainingIgnoreCase(keyword, keyword, keyword
         );
     }
 
-    /**
-     * Soft Delete User
-     */
+    //Soft Delete User
     public void deleteUser(Long userId) {
 
         User user = getUser(userId);
-
         user.setDeleted(true);
         user.setEnabled(false);
 
