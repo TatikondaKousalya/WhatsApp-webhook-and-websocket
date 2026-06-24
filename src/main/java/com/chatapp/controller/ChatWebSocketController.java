@@ -2,6 +2,7 @@ package com.chatapp.controller;
 
 import com.chatapp.data.entity.Message;
 import com.chatapp.dto.request.ChatMessageRequest;
+import com.chatapp.dto.request.PresenceMessage;
 import com.chatapp.dto.request.TypingMessage;
 import com.chatapp.dto.response.ChatMessageResponse;
 import com.chatapp.service.MessageService;
@@ -82,6 +83,26 @@ public class ChatWebSocketController {
     @MessageMapping("/chat.typing")
     public void typing(TypingMessage message) {
         messagingTemplate.convertAndSend("/topic/chat/" + message.getRoomId() + "/typing", message);
+    }
+
+    @MessageMapping("/chat.online")
+    public void online(PresenceMessage message) {
+
+        messagingTemplate.convertAndSend(
+                "/topic/presence",
+                message
+        );
+
+    }
+
+    @MessageMapping("/chat.offline")
+    public void offline(PresenceMessage message) {
+
+        messagingTemplate.convertAndSend(
+                "/topic/presence",
+                message
+        );
+
     }
 
 }
