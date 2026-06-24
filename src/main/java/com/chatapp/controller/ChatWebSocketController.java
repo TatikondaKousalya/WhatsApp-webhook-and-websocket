@@ -2,6 +2,7 @@ package com.chatapp.controller;
 
 import com.chatapp.data.entity.Message;
 import com.chatapp.dto.request.ChatMessageRequest;
+import com.chatapp.dto.request.TypingMessage;
 import com.chatapp.dto.response.ChatMessageResponse;
 import com.chatapp.service.MessageService;
 import lombok.RequiredArgsConstructor;
@@ -76,6 +77,11 @@ public class ChatWebSocketController {
                 .status(message.getMessageStatus().name())
                 .createdAt(message.getCreatedAt())
                 .build();
+    }
+
+    @MessageMapping("/chat.typing")
+    public void typing(TypingMessage message) {
+        messagingTemplate.convertAndSend("/topic/chat/" + message.getRoomId() + "/typing", message);
     }
 
 }
