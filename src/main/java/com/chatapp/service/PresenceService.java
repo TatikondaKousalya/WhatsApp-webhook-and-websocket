@@ -1,6 +1,5 @@
 package com.chatapp.service;
 
-import com.chatapp.data.entity.User;
 import com.chatapp.data.entity.UserPresence;
 import com.chatapp.data.repository.UserPresenceRepository;
 import com.chatapp.data.repository.UserRepository;
@@ -20,13 +19,14 @@ public class PresenceService {
 
     public void markOnline(Long userId, String sessionId) {
 
-        User user = userRepository.findById(userId)
+        // Validate user
+        userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found."));
 
         UserPresence presence = userPresenceRepository.findByUserId(userId)
                 .orElse(new UserPresence());
 
-        presence.setUser(user);
+        presence.setUserId(userId);
         presence.setStatus(UserStatus.ONLINE);
         presence.setLastSeen(LocalDateTime.now());
         presence.setSocketSession(sessionId);

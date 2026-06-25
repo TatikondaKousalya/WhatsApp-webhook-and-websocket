@@ -1,20 +1,19 @@
 package com.chatapp.data.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "group_chats")
+@Table(name = "group_chat")
 public class GroupChat extends BaseEntity {
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "room_id", nullable = false, unique = true)
-    private ChatRoom room;
+    @Column(name = "room_id", nullable = false, unique = true)
+    private Long roomId;
 
     @Column(name = "group_name", nullable = false)
     private String groupName;
@@ -25,15 +24,6 @@ public class GroupChat extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by", nullable = false)
-    private User createdBy;
-
-    @ManyToMany
-    @JoinTable(
-            name = "group_chat_members",
-            joinColumns = @JoinColumn(name = "group_chat_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private List<User> members;
+    @Column(name = "created_by", nullable =false)
+    private Long createdBy;
 }

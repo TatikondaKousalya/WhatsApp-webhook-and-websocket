@@ -1,6 +1,9 @@
 package com.chatapp.security.jwt;
 
+import com.chatapp.data.entity.Role;
 import com.chatapp.data.entity.User;
+import com.chatapp.data.repository.RoleRepository;
+import com.chatapp.exception.ResourceNotFoundException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -17,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+
 @Service
 @RequiredArgsConstructor
 public class JwtService {
@@ -27,6 +31,8 @@ public class JwtService {
     @Value("${application.security.jwt.expiration}")
     private long jwtExpiration;
 
+    private final RoleRepository roleRepository;
+
     /**
      * Generate JWT with default claims
      */
@@ -35,8 +41,13 @@ public class JwtService {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", user.getId());
 
-        if (user.getRole() != null) {
-            claims.put("role", user.getRole().getName());
+        if (user.getRoleId() != null) {
+
+            Role role = roleRepository.findById(user.getRoleId())
+                    .orElseThrow(() ->
+                            new ResourceNotFoundException("Role not found."));
+
+            claims.put("role", role.getName());
         }
 
         return generateToken(claims, user);

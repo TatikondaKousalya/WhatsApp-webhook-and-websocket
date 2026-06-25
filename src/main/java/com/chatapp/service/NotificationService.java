@@ -1,7 +1,6 @@
 package com.chatapp.service;
 
 import com.chatapp.data.entity.Notification;
-import com.chatapp.data.entity.User;
 import com.chatapp.data.repository.NotificationRepository;
 import com.chatapp.data.repository.UserRepository;
 import com.chatapp.enums.NotificationType;
@@ -22,11 +21,11 @@ public class NotificationService {
     public Notification createNotification(Long userId, String title,
                                            String message, String notificationType) {
 
-        User user = userRepository.findById(userId)
+        userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found."));
 
         Notification notification = new Notification();
-        notification.setUser(user);
+        notification.setUserId(userId);
         notification.setTitle(title);
         notification.setMessage(message);
         notification.setNotificationType(NotificationType.valueOf(notificationType));

@@ -12,17 +12,17 @@ import lombok.Setter;
 @Table(name = "messages")
 public class Message extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_id", nullable = false)
-    private User sender;
+    @Column(name = "sender_id", nullable = false)
+    private Long senderId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receiver_id")
-    private User receiver;
+    @Column(name = "receiver_id")
+    private Long receiverId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chat_room_id", nullable = false)
-    private ChatRoom chatRoom;
+    @Column(name = "chat_room_id", nullable = false)
+    private Long chatRoomId;
+
+    @Column(name = "group_id")
+    private Long groupId;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String message;
@@ -37,10 +37,6 @@ public class Message extends BaseEntity {
 
     @Column(name = "attachment")
     private String attachment;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id")
-    private GroupChat group;
 
     @Column(name = "latitude")
     private Double latitude;

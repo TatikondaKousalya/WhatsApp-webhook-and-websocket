@@ -1,6 +1,8 @@
 package com.chatapp.data.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,7 +27,6 @@ public class Attachment extends BaseEntity {
     @Column(name = "file_size", nullable = false)
     private Long fileSize;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "uploaded_by", nullable = false)
-    private User uploadedBy;
+    @Column(name = "uploaded_by", nullable = false)
+    private Long uploadedBy;
 }

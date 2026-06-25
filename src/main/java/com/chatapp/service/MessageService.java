@@ -23,25 +23,28 @@ public class MessageService {
     private final GroupChatRepository groupChatRepository;
     private final AttachmentRepository attachmentRepository;
 
-    //Send private message
+    // Send Private Message
     public Message sendPrivateMessage(Long senderId, Long receiverId,
                                       String text, Long attachmentId) {
 
-        User sender = userRepository.findById(senderId)
+        // Validate sender
+        userRepository.findById(senderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Sender not found."));
 
-        User receiver = userRepository.findById(receiverId)
+        // Validate receiver
+        userRepository.findById(receiverId)
                 .orElseThrow(() -> new ResourceNotFoundException("Receiver not found."));
 
+        // Find existing private chat
         ChatRoom room = chatRoomRepository
-                .findByUser1AndUser2AndRoomType(sender, receiver, RoomType.PRIVATE)
-                .or(() -> chatRoomRepository.findByUser1AndUser2AndRoomType(receiver, sender, RoomType.PRIVATE))
-                .orElseGet(() -> createChatRoom(sender, receiver));
+                .findByUser1IdAndUser2IdAndRoomType(senderId, receiverId, RoomType.PRIVATE)
+                .or(() -> chatRoomRepository.findByUser1IdAndUser2IdAndRoomType(receiverId, senderId, RoomType.PRIVATE))
+                .orElseGet(() -> createChatRoom(senderId, receiverId));
 
         Message message = new Message();
-        message.setSender(sender);
-        message.setReceiver(receiver);
-        message.setChatRoom(room);
+        message.setSenderId(senderId);
+        message.setReceiverId(receiverId);
+        message.setChatRoomId(room.getId());
         message.setMessage(text);
         message.setMessageStatus(MessageStatus.SENT);
 
@@ -51,6 +54,7 @@ public class MessageService {
                     .orElseThrow(() -> new ResourceNotFoundException("Attachment not found."));
 
             message.setAttachment(attachment.getFilePath());
+
             String fileType = attachment.getFileType();
 
             if (fileType.startsWith("image/")) {
@@ -66,37 +70,39 @@ public class MessageService {
         } else {
             message.setMessageType(MessageType.TEXT);
         }
+
         return messageRepository.save(message);
     }
 
-    private ChatRoom createChatRoom(User sender, User receiver) {
+    private ChatRoom createChatRoom(Long senderId, Long receiverId) {
 
         ChatRoom room = new ChatRoom();
-
-        room.setRoomName(sender.getUsername() + "_" + receiver.getUsername());
+        room.setRoomName("Private Chat");
         room.setRoomType(RoomType.PRIVATE);
-        room.setCreatedBy(sender);
-        room.setUser1(sender);
-        room.setUser2(receiver);
+        room.setCreatedBy(senderId);
+        room.setUser1Id(senderId);
+        room.setUser2Id(receiverId);
 
         return chatRoomRepository.save(room);
     }
 
 
-    // Send group message
+    // Send Group Message
     public Message sendGroupMessage(Long senderId, Long groupId,
                                     String text, Long attachmentId) {
 
-        User sender = userRepository.findById(senderId)
+        // Validate sender
+        userRepository.findById(senderId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found."));
 
+        // Validate group
         GroupChat group = groupChatRepository.findById(groupId)
                 .orElseThrow(() -> new ResourceNotFoundException("Group not found."));
 
         Message message = new Message();
-
-        message.setSender(sender);
-        message.setGroup(group);
+        message.setSenderId(senderId);
+        message.setGroupId(groupId);
+        message.setChatRoomId(group.getRoomId());   // Group belongs to a chat room
         message.setMessage(text);
         message.setMessageStatus(MessageStatus.SENT);
 
@@ -106,6 +112,7 @@ public class MessageService {
                     .orElseThrow(() -> new ResourceNotFoundException("Attachment not found."));
 
             message.setAttachment(attachment.getFilePath());
+
             String fileType = attachment.getFileType();
 
             if (fileType.startsWith("image/")) {

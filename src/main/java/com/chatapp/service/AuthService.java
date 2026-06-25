@@ -41,7 +41,6 @@ public class AuthService {
     @Value("${application.security.jwt.expiration}")
     private Long jwtExpiration;
 
-    // Register User
     @Transactional
     public AuthResponse register(RegisterRequest request) {
 
@@ -64,14 +63,10 @@ public class AuthService {
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
 
-        /*
-         * Username generation
-         * Example:
-         * John + 1023 -> john1023
-         */
-
         String username = (request.getFirstName() + request.getLastName())
-                .replaceAll("\\s+", "").toLowerCase();
+                .replaceAll("\\s+", "")
+                .toLowerCase();
+
         user.setUsername(username);
         user.setEmail(request.getEmail());
         user.setPhoneNumber(request.getPhoneNumber());
@@ -81,15 +76,22 @@ public class AuthService {
         user.setOnline(false);
         user.setLastSeen(LocalDateTime.now());
         user.setProfilePicture("default-profile.png");
-        user.setRole(role);
+
+        // Store only the role ID
+        user.setRoleId(role.getId());
 
         User savedUser = userRepository.save(user);
+
         String accessToken = jwtService.generateToken(savedUser);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(savedUser);
 
-        return AuthResponse.builder().accessToken(accessToken)
-                .refreshToken(refreshToken.getToken()).tokenType("Bearer")
-                .expiresIn(jwtExpiration).user(mapUser(savedUser)).build();
+        return AuthResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken.getToken())
+                .tokenType("Bearer")
+                .expiresIn(jwtExpiration)
+                .user(mapUser(savedUser))
+                .build();
     }
 
     private UserResponse mapUser(User user) {
@@ -133,17 +135,23 @@ public class AuthService {
                 .expiresIn(jwtExpiration).user(mapUser(user)).build();
     }
 
-    // Generate new access token using refresh token
     @Transactional
     public AuthResponse refreshToken(RefreshTokenRequest request) {
 
         RefreshToken refreshToken = refreshTokenService.verifyRefreshToken(request.getRefreshToken());
-        User user = refreshToken.getUser();
+
+        User user = userRepository.findById(refreshToken.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+
         String accessToken = jwtService.generateToken(user);
 
-        return AuthResponse.builder().accessToken(accessToken)
-                .refreshToken(refreshToken.getToken()).tokenType("Bearer")
-                .expiresIn(jwtExpiration).user(mapUser(user)).build();
+        return AuthResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken.getToken())
+                .tokenType("Bearer")
+                .expiresIn(jwtExpiration)
+                .user(mapUser(user))
+                .build();
     }
 
     //Logout User

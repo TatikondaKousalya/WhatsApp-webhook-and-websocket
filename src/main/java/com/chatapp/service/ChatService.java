@@ -18,16 +18,16 @@ public class ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
 
-    //Create Private Chat
+    // Create Private Chat
     public ChatRoom createPrivateChat(Long createdById, String roomName) {
 
-        User user = userRepository.findById(createdById)
+        userRepository.findById(createdById)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found."));
 
         ChatRoom room = new ChatRoom();
         room.setRoomName(roomName);
         room.setRoomType(RoomType.PRIVATE);
-        room.setCreatedBy(user);
+        room.setCreatedBy(createdById);
 
         return chatRoomRepository.save(room);
     }
@@ -36,14 +36,14 @@ public class ChatService {
     // Create Group Chat
     public ChatRoom createGroupChat(Long createdById, String roomName) {
 
-        User user = userRepository.findById(createdById)
+        userRepository.findById(createdById)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User not found."));
 
         ChatRoom room = new ChatRoom();
         room.setRoomName(roomName);
         room.setRoomType(RoomType.GROUP);
-        room.setCreatedBy(user);
+        room.setCreatedBy(createdById);
 
         return chatRoomRepository.save(room);
     }

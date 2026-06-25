@@ -13,9 +13,8 @@ import java.time.LocalDateTime;
 @Table(name = "user_presence")
 public class UserPresence extends BaseEntity {
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private User user;
+    @Column(name = "user_id", nullable = false, unique = true)
+    private Long userId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

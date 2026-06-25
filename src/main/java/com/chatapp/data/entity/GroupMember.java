@@ -1,6 +1,8 @@
 package com.chatapp.data.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,15 +14,13 @@ import java.time.LocalDateTime;
 @Table(name = "group_members")
 public class GroupMember extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id", nullable = false)
-    private GroupChat group;
+    @Column(name = "group_id", nullable = false)
+    private Long groupId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
-    @Column(nullable = false)
+    @Column(name = "is_admin", nullable = false)
     private Boolean admin = false;
 
     @Column(name = "joined_at", nullable = false)

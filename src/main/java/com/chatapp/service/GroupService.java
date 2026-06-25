@@ -3,6 +3,7 @@ package com.chatapp.service;
 import com.chatapp.data.entity.GroupChat;
 import com.chatapp.data.entity.GroupMember;
 import com.chatapp.data.entity.User;
+import com.chatapp.data.repository.ChatRoomRepository;
 import com.chatapp.data.repository.GroupChatRepository;
 import com.chatapp.data.repository.GroupMemberRepository;
 import com.chatapp.data.repository.UserRepository;
@@ -21,21 +22,26 @@ public class GroupService {
     private final GroupChatRepository groupChatRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final UserRepository userRepository;
+    private final ChatRoomRepository chatRoomRepository;
 
     // Create Group
     public GroupChat createGroup(GroupChat group) {
 
-        User creator = userRepository.findById(group.getCreatedBy().getId())
+        // Validate creator
+        userRepository.findById(group.getCreatedBy())
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User not found."));
 
-        group.setCreatedBy(creator);
+        // Validate chat room
+        chatRoomRepository.findById(group.getRoomId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Chat room not found."));
 
         GroupChat savedGroup = groupChatRepository.save(group);
 
         GroupMember member = new GroupMember();
-        member.setGroup(savedGroup);
-        member.setUser(creator);
+        member.setGroupId(savedGroup.getId());
+        member.setUserId(group.getCreatedBy());
         member.setAdmin(true);
         member.setJoinedAt(LocalDateTime.now());
 
@@ -47,21 +53,24 @@ public class GroupService {
     // Add Member
     public void addMember(Long groupId, Long userId) {
 
-        GroupChat group = groupChatRepository.findById(groupId)
+        // Validate group
+        groupChatRepository.findById(groupId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Group not found."));
 
-        User user = userRepository.findById(userId)
+        // Validate user
+        userRepository.findById(userId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User not found."));
 
+        // Check if already a member
         if (groupMemberRepository.existsByGroupIdAndUserId(groupId, userId)) {
             throw new BadRequestException("User already exists in group.");
         }
 
         GroupMember member = new GroupMember();
-        member.setGroup(group);
-        member.setUser(user);
+        member.setGroupId(groupId);
+        member.setUserId(userId);
         member.setAdmin(false);
         member.setJoinedAt(LocalDateTime.now());
 

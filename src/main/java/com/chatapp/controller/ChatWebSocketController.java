@@ -1,10 +1,13 @@
 package com.chatapp.controller;
 
 import com.chatapp.data.entity.Message;
+import com.chatapp.data.entity.User;
+import com.chatapp.data.repository.UserRepository;
 import com.chatapp.dto.request.ChatMessageRequest;
 import com.chatapp.dto.request.PresenceMessage;
 import com.chatapp.dto.request.TypingMessage;
 import com.chatapp.dto.response.ChatMessageResponse;
+import com.chatapp.exception.ResourceNotFoundException;
 import com.chatapp.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -17,6 +20,7 @@ public class ChatWebSocketController {
 
     private final MessageService messageService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final UserRepository userRepository;
 
     @MessageMapping("/chat.send")
     public void send(ChatMessageRequest request) {
@@ -46,32 +50,25 @@ public class ChatWebSocketController {
                     request.getAttachmentId()
             );
 
-            Long roomId = savedMessage.getChatRoom().getId();
-
             messagingTemplate.convertAndSend(
-                    "/topic/chat/" + roomId,
+                    "/topic/chat/" + savedMessage.getChatRoomId(),
                     map(savedMessage)
             );
         }
-
     }
 
     private ChatMessageResponse map(Message message) {
 
+        User sender = userRepository.findById(message.getSenderId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Sender not found."));
+
         return ChatMessageResponse.builder()
                 .messageId(message.getId())
-                .senderId(message.getSender().getId())
-                .senderName(message.getSender().getUsername())
-                .receiverId(
-                        message.getReceiver() != null
-                                ? message.getReceiver().getId()
-                                : null
-                )
-                .groupId(
-                        message.getGroup() != null
-                                ? message.getGroup().getId()
-                                : null
-                )
+                .senderId(message.getSenderId())
+                .senderName(sender.getUsername())
+                .receiverId(message.getReceiverId())
+                .groupId(message.getGroupId())
                 .message(message.getMessage())
                 .attachmentUrl(message.getAttachment())
                 .messageType(message.getMessageType().name())
@@ -82,7 +79,11 @@ public class ChatWebSocketController {
 
     @MessageMapping("/chat.typing")
     public void typing(TypingMessage message) {
-        messagingTemplate.convertAndSend("/topic/chat/" + message.getRoomId() + "/typing", message);
+
+        messagingTemplate.convertAndSend(
+                "/topic/chat/" + message.getRoomId() + "/typing",
+                message
+        );
     }
 
     @MessageMapping("/chat.online")
@@ -92,7 +93,6 @@ public class ChatWebSocketController {
                 "/topic/presence",
                 message
         );
-
     }
 
     @MessageMapping("/chat.offline")
@@ -102,7 +102,5 @@ public class ChatWebSocketController {
                 "/topic/presence",
                 message
         );
-
     }
-
 }

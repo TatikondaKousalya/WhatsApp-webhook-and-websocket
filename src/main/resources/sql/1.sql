@@ -19,31 +19,29 @@ CREATE TABLE users (
     phone_number VARCHAR(20) UNIQUE,
     profile_picture VARCHAR(500),
     bio VARCHAR(255),
-    last_seen TIMESTAMP,
+    last_seen TIMESTAMP NULL,
     online BOOLEAN DEFAULT FALSE,
     enabled BOOLEAN DEFAULT TRUE,
     is_deleted BOOLEAN DEFAULT FALSE,
+
+    -- Store only the role ID, no foreign key
     role_id BIGINT NOT NULL,
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_user_role FOREIGN KEY(role_id) REFERENCES roles(id)
+        ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE chat_rooms (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     room_name VARCHAR(255),
-    room_type VARCHAR(30),
+    room_type VARCHAR(30) NOT NULL,
     created_by BIGINT,
     user1_id BIGINT,
     user2_id BIGINT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    ON UPDATE CURRENT_TIMESTAMP,
-
-    FOREIGN KEY(created_by) REFERENCES users(id),
-    FOREIGN KEY(user1_id) REFERENCES users(id),
-    FOREIGN KEY(user2_id) REFERENCES users(id)
+        ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE group_chat (
@@ -55,10 +53,7 @@ CREATE TABLE group_chat (
     created_by BIGINT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    ON UPDATE CURRENT_TIMESTAMP,
-
-    FOREIGN KEY(room_id) REFERENCES chat_rooms(id),
-    FOREIGN KEY(created_by) REFERENCES users(id)
+        ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE group_members (
@@ -69,10 +64,7 @@ CREATE TABLE group_members (
     joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    ON UPDATE CURRENT_TIMESTAMP,
-
-    FOREIGN KEY(group_id) REFERENCES group_chat(id),
-    FOREIGN KEY(user_id) REFERENCES users(id)
+        ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE attachments (
@@ -85,29 +77,22 @@ CREATE TABLE attachments (
     uploaded_by BIGINT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    ON UPDATE CURRENT_TIMESTAMP,
-
-    FOREIGN KEY(uploaded_by) REFERENCES users(id)
+        ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE messages (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     sender_id BIGINT NOT NULL,
-    receiver_id BIGINT NULL,
+    receiver_id BIGINT,
     chat_room_id BIGINT NOT NULL,
-    group_id BIGINT NULL,
+    group_id BIGINT,
     message TEXT,
     message_type VARCHAR(30) NOT NULL,
     message_status VARCHAR(30) NOT NULL,
     attachment VARCHAR(500),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    ON UPDATE CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (sender_id) REFERENCES users(id),
-    FOREIGN KEY (receiver_id) REFERENCES users(id),
-    FOREIGN KEY (chat_room_id) REFERENCES chat_rooms(id),
-    FOREIGN KEY (group_id) REFERENCES group_chat(id)
+        ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE refresh_tokens (
@@ -118,9 +103,7 @@ CREATE TABLE refresh_tokens (
     revoked BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    ON UPDATE CURRENT_TIMESTAMP,
-
-    FOREIGN KEY(user_id) REFERENCES users(id)
+        ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE notifications (
@@ -132,36 +115,26 @@ CREATE TABLE notifications (
     is_read BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    ON UPDATE CURRENT_TIMESTAMP,
-
-    FOREIGN KEY(user_id) REFERENCES users(id)
+        ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE user_presence (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL UNIQUE,
     status VARCHAR(30) NOT NULL,
-    last_seen TIMESTAMP,
+    last_seen TIMESTAMP NULL,
     socket_session VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    ON UPDATE CURRENT_TIMESTAMP,
-
-    FOREIGN KEY(user_id) REFERENCES users(id)
+        ON UPDATE CURRENT_TIMESTAMP
 );
 
-
-CREATE INDEX idx_message_chat_room ON messages(chat_room_id);
-CREATE INDEX idx_message_sender ON messages(sender_id);
-CREATE INDEX idx_message_receiver ON messages(receiver_id);
-
-CREATE INDEX idx_group_member_group ON group_members(group_id);
-CREATE INDEX idx_group_member_user ON group_members(user_id);
-
-CREATE INDEX idx_notification_user ON notifications(user_id);
-CREATE INDEX idx_presence_user ON user_presence(user_id);
 
 INSERT INTO roles (name, description)
 VALUES
 ('ROLE_USER', 'Default user'),
 ('ROLE_ADMIN', 'Administrator');
+
+ALTER TABLE messages
+ADD COLUMN latitude DOUBLE NULL,
+ADD COLUMN longitude DOUBLE NULL;

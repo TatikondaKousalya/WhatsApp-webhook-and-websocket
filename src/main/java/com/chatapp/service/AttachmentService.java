@@ -1,7 +1,6 @@
 package com.chatapp.service;
 
 import com.chatapp.data.entity.Attachment;
-import com.chatapp.data.entity.User;
 import com.chatapp.data.repository.AttachmentRepository;
 import com.chatapp.data.repository.UserRepository;
 import com.chatapp.exception.FileStorageException;
@@ -13,7 +12,10 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 @Service
@@ -34,7 +36,8 @@ public class AttachmentService {
             throw new FileStorageException("File cannot be empty.");
         }
 
-        User user = userRepository.findById(userId)
+        // Validate user
+        userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found."));
 
         try {
@@ -52,7 +55,8 @@ public class AttachmentService {
 
             Path destination = uploadPath.resolve(fileName);
 
-            Files.copy(file.getInputStream(), destination,
+            Files.copy(file.getInputStream(),
+                    destination,
                     StandardCopyOption.REPLACE_EXISTING);
 
             Attachment attachment = new Attachment();
@@ -61,7 +65,9 @@ public class AttachmentService {
             attachment.setFilePath(destination.toString());
             attachment.setFileType(file.getContentType());
             attachment.setFileSize(file.getSize());
-            attachment.setUploadedBy(user);
+
+            // Store only the user ID
+            attachment.setUploadedBy(userId);
 
             return attachmentRepository.save(attachment);
 
