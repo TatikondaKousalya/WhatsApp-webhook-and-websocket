@@ -36,6 +36,13 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = null;
         String username = null;
 
+        String path = request.getServletPath();
+
+        if (path.startsWith("/ws")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         // Check Authorization Header
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
