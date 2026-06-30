@@ -1,8 +1,8 @@
 package com.chatapp.controller;
 
 import com.chatapp.data.entity.GroupChat;
-import com.chatapp.data.entity.GroupMember;
 import com.chatapp.dto.response.ApiResponse;
+import com.chatapp.dto.response.GroupMemberProjection;
 import com.chatapp.service.GroupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -49,11 +49,10 @@ public class GroupController {
     }
 
     @GetMapping("/{id}/members")
-    public ResponseEntity<ApiResponse<List<GroupMember>>> members(@PathVariable Long id) {
-        List<GroupMember> members = groupService.getMembers(id);
-        return ResponseEntity.ok(ApiResponse.<List<GroupMember>>builder()
+    public ResponseEntity<ApiResponse<List<GroupMemberProjection>>> members(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.<List<GroupMemberProjection>>builder()
                 .success(true).message("Group members fetched successfully.")
-                .data(members).build());
+                .data(groupService.getMembers(id)).build());
     }
 
     @PutMapping

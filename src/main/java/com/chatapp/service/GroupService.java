@@ -2,11 +2,11 @@ package com.chatapp.service;
 
 import com.chatapp.data.entity.GroupChat;
 import com.chatapp.data.entity.GroupMember;
-import com.chatapp.data.entity.User;
 import com.chatapp.data.repository.ChatRoomRepository;
 import com.chatapp.data.repository.GroupChatRepository;
 import com.chatapp.data.repository.GroupMemberRepository;
 import com.chatapp.data.repository.UserRepository;
+import com.chatapp.dto.response.GroupMemberProjection;
 import com.chatapp.exception.BadRequestException;
 import com.chatapp.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -97,9 +97,8 @@ public class GroupService {
     }
 
     // Get Members
-    public List<GroupMember> getMembers(Long groupId) {
-
-        return groupMemberRepository.findByGroupId(groupId);
+    public List<GroupMemberProjection> getMembers(Long groupId) {
+        return groupMemberRepository.findMembersWithUsername(groupId);
     }
 
     // Update Group
