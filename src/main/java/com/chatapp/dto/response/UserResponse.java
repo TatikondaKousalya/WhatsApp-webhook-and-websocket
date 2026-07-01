@@ -23,7 +23,7 @@ public class UserResponse {
 
     private String phoneNumber;
 
-    private String profileImage;
+    private String profilePicture;
 
     private String bio;
 

@@ -102,7 +102,7 @@ public class AuthService {
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
-                .profileImage(user.getProfilePicture())
+                .profilePicture(user.getProfilePicture())
                 .bio(user.getBio())
                 .online(user.getOnline())
                 .lastSeen(user.getLastSeen())
