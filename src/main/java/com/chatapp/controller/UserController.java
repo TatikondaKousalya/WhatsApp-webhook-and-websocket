@@ -3,11 +3,14 @@ package com.chatapp.controller;
 import com.chatapp.data.entity.User;
 import com.chatapp.dto.request.UpdateUserRequest;
 import com.chatapp.dto.response.ApiResponse;
+import com.chatapp.dto.response.UserResponse;
 import com.chatapp.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -62,5 +65,16 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.ok(ApiResponse.<Void>builder()
                 .success(true).message("User deleted successfully.").build());
+    }
+
+    @PutMapping("/profile-picture")
+    public ApiResponse<UserResponse> updateProfilePicture(
+            @RequestParam MultipartFile file) throws IOException {
+
+        return ApiResponse.<UserResponse>builder()
+                .success(true)
+                .message("Profile picture updated successfully.")
+                .data(userService.updateProfilePicture(file))
+                .build();
     }
 }

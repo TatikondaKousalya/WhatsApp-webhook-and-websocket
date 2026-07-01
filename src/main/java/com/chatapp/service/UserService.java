@@ -3,19 +3,30 @@ package com.chatapp.service;
 import com.chatapp.data.entity.User;
 import com.chatapp.data.repository.UserRepository;
 import com.chatapp.dto.request.UpdateUserRequest;
+import com.chatapp.dto.response.UserResponse;
 import com.chatapp.exception.BadRequestException;
 import com.chatapp.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
+    private final CloudinaryService cloudinaryService;
 
 
     // Get User By Id
@@ -70,13 +81,15 @@ public class UserService {
 
         return userRepository.save(user);
     }
-
-    //Update Profile Picture
-    public User updateProfilePicture(String imagePath) {
+    public UserResponse updateProfilePicture(MultipartFile file) throws IOException {
 
         User user = getCurrentUser();
-        user.setProfilePicture(imagePath);
-        return userRepository.save(user);
+        // Upload image to Cloudinary
+        String imageUrl = cloudinaryService.uploadImage(file);
+        // Save Cloudinary URL
+        user.setProfilePicture(imageUrl);
+        User updatedUser = userRepository.save(user);
+        return modelMapper.map(updatedUser, UserResponse.class);
     }
 
     //Search Users
