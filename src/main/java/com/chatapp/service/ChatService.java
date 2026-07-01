@@ -2,9 +2,11 @@ package com.chatapp.service;
 
 import com.chatapp.data.entity.ChatRoom;
 import com.chatapp.data.entity.GroupChat;
+import com.chatapp.data.entity.Message;
 import com.chatapp.data.entity.User;
 import com.chatapp.data.repository.ChatRoomRepository;
 import com.chatapp.data.repository.GroupChatRepository;
+import com.chatapp.data.repository.MessageRepository;
 import com.chatapp.data.repository.UserRepository;
 import com.chatapp.dto.request.GroupRequest;
 import com.chatapp.dto.response.ChatRoomResponse;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /*
  * ADDITIONS to support the fixed ChatController (Bug 5 & Bug 6):
@@ -37,6 +40,7 @@ public class ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
     private final GroupChatRepository groupChatRepository;
+    private final MessageRepository messageRepository;
 
     // -------------------------------------------------------------------------
     // EXISTING methods (kept unchanged)
@@ -176,6 +180,33 @@ public class ChatService {
                 continue;
             }
 
+            Optional<Message> lastMessageOptional =
+                    messageRepository.findTopByChatRoomIdOrderByCreatedAtDesc(room.getId());
+
+            String lastMessage;
+            LocalDateTime lastMessageTime;
+            Long lastSenderId;
+            String lastSenderName = null;
+
+            if (lastMessageOptional.isPresent()) {
+
+                Message message = lastMessageOptional.get();
+
+                lastMessage = message.getMessage();
+                lastMessageTime = message.getCreatedAt();
+                lastSenderId = message.getSenderId();
+
+                try {
+                    User sender = userService.getUser(message.getSenderId());
+                    lastSenderName = sender.getFirstName();
+                } catch (Exception ignored) {
+                }
+            } else {
+                lastSenderId = null;
+                lastMessageTime = null;
+                lastMessage = null;
+            }
+
             if (room.getRoomType() == RoomType.PRIVATE) {
 
                 Long otherUserId = room.getUser1Id().equals(currentUser.getId())
@@ -191,6 +222,10 @@ public class ChatService {
                             .receiverId(other.getId())
                             .profilePicture(other.getProfilePicture())
                             .online(other.getOnline())
+                            .lastMessage(lastMessage)
+                            .lastMessageTime(lastMessageTime)
+                            .lastSenderId(lastSenderId)
+                            .lastSenderName(lastSenderName)
                             .build());
                 } catch (Exception ignored) {
                     // other user deleted — skip this room
@@ -199,6 +234,7 @@ public class ChatService {
             } else {
 
                 // GROUP room — find the GroupChat record
+                String finalLastSenderName = lastSenderName;
                 groupChatRepository.findByRoomId(room.getId()).ifPresent(group ->
                         responses.add(ChatRoomResponse.builder()
                                 .id(room.getId())
@@ -207,6 +243,10 @@ public class ChatService {
                                 .groupId(group.getId())
                                 .profilePicture(group.getGroupImage())
                                 .online(false)
+                                .lastMessage(lastMessage)
+                                .lastMessageTime(lastMessageTime)
+                                .lastSenderId(lastSenderId)
+                                .lastSenderName(finalLastSenderName)
                                 .build())
                 );
             }

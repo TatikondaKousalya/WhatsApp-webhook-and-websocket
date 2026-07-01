@@ -1,6 +1,7 @@
 package com.chatapp.data.repository;
 
 import com.chatapp.data.entity.ChatRoom;
+import com.chatapp.data.entity.Message;
 import com.chatapp.enums.RoomType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
