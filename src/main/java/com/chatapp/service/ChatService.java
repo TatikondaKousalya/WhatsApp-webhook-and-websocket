@@ -8,6 +8,7 @@ import com.chatapp.data.repository.ChatRoomRepository;
 import com.chatapp.data.repository.GroupChatRepository;
 import com.chatapp.data.repository.MessageRepository;
 import com.chatapp.data.repository.UserRepository;
+import com.chatapp.data.repository.GroupMemberRepository;
 import com.chatapp.dto.request.GroupRequest;
 import com.chatapp.dto.response.ChatRoomResponse;
 import com.chatapp.enums.RoomType;
@@ -41,6 +42,7 @@ public class ChatService {
     private final UserRepository userRepository;
     private final GroupChatRepository groupChatRepository;
     private final MessageRepository messageRepository;
+    private final GroupMemberRepository groupMemberRepository;
 
     // -------------------------------------------------------------------------
     // EXISTING methods (kept unchanged)
@@ -304,6 +306,8 @@ public class ChatService {
         }
         // For GROUP rooms, membership check is in GroupMemberRepository.
         // For now, return true and let the group lookup fail gracefully for non-members.
-        return room.getCreatedBy() != null;
+        return groupChatRepository.findByRoomId(room.getId())
+                .map(group -> groupMemberRepository.existsByGroupIdAndUserId(group.getId(), userId))
+                .orElse(false);
     }
 }
