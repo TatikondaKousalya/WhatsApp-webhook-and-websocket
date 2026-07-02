@@ -24,4 +24,23 @@ public class CloudinaryService {
 
         return uploadResult.get("secure_url").toString();
     }
+
+    public Map<String, Object> uploadFile(MultipartFile file) throws IOException {
+
+        return cloudinary.uploader().upload(
+                file.getBytes(),
+                ObjectUtils.asMap(
+                        "folder", "thread-chat",
+                        "resource_type", "auto"
+                )
+        );
+    }
+
+    public void deleteFile(String publicId) throws IOException {
+
+        cloudinary.uploader().destroy(
+                publicId,
+                ObjectUtils.emptyMap()
+        );
+    }
 }

@@ -53,7 +53,7 @@ public class MessageService {
             Attachment attachment = attachmentRepository.findById(attachmentId)
                     .orElseThrow(() -> new ResourceNotFoundException("Attachment not found."));
 
-            message.setAttachment(attachment.getFilePath());
+            message.setAttachment(attachment.getFileUrl());
 
             String fileType = attachment.getFileType();
 
@@ -111,7 +111,7 @@ public class MessageService {
             Attachment attachment = attachmentRepository.findById(attachmentId)
                     .orElseThrow(() -> new ResourceNotFoundException("Attachment not found."));
 
-            message.setAttachment(attachment.getFilePath());
+            message.setAttachment(attachment.getFileUrl());
 
             String fileType = attachment.getFileType();
 

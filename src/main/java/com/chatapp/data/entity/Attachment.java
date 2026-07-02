@@ -18,8 +18,11 @@ public class Attachment extends BaseEntity {
     @Column(name = "original_name", nullable = false)
     private String originalName;
 
-    @Column(name = "file_path", nullable = false)
-    private String filePath;
+    @Column(name = "file_url", nullable = false, length = 1000)
+    private String fileUrl;
+
+    @Column(name = "public_id", nullable = false)
+    private String publicId;
 
     @Column(name = "file_type", nullable = false)
     private String fileType;
