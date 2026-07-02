@@ -15,16 +15,16 @@ public interface GroupMemberRepository extends JpaRepository<GroupMember, Long> 
     List<GroupMember> findByGroupId(Long groupId);
 
     Optional<GroupMember> findByGroupIdAndUserId(Long groupId, Long userId);
-    @Query("""
-            SELECT
-                gm.userId AS userId,
-                u.username AS username,
-                gm.admin AS admin,
-                gm.joinedAt AS joinedAt
-            FROM GroupMember gm
-            JOIN User u
-            ON gm.userId = u.id
-            WHERE gm.groupId = :groupId
-""")
+
+    @Query(value = "select " +
+            "            gm.user_id as userId, " +
+            "            u.username as username, " +
+            "            gm.is_admin as admin, " +
+            "            gm.joined_at as joinedAt, " +
+            "            u.profile_picture as profileImage " +
+            "       from " +
+            "             group_members gm join users u on gm.user_id = u.id " +
+            "       where " +
+            "              gm.group_id = :groupId ", nativeQuery = true)
     List<GroupMemberProjection> findMembersWithUsername(Long groupId);
 }

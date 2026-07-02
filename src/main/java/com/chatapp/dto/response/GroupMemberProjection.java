@@ -11,4 +11,6 @@ public interface GroupMemberProjection {
     Boolean getAdmin();
 
     LocalDateTime getJoinedAt();
+
+    String getProfileImage();
 }
